@@ -1,0 +1,13 @@
+{
+  "name": "wechat-access-token",
+  "version": "1.0.0",
+  "description": "pop one wechat access_token sometimes refresh",
+  "main": "index.js",
+  "scripts": {},
+  "keyword": ["wechat", "access token"],
+  "author": "LiuGuili <gongzili456@gmail.com> (http://geeekr.com)",
+  "license": "ISC",
+  "dependencies": {
+    "co-request": "^1.0.0"
+  }
+}
