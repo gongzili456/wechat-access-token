@@ -25,7 +25,7 @@ function refresh(appid, secret, cb) {
     if (body && body.errcode) {
       var err = new Error(body.errmsg);
       err.name = 'WechatAPIError';
-      err.status = body.errcode;
+      err.code = body.errcode;
       return cb(err);
     }
     _wx_access_token_[appid] = {
