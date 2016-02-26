@@ -1,26 +1,42 @@
-'use strict'
+'use strict';
 const request = require('co-request');
 
 const _wx_access_token_ = {};
 
-/**
-* return one token.
-*/
-module.exports = function token(appid, secret, cb) {
-  // 1. if token is valid.
-  if (isValid(appid)) {
-    return cb(null, _wx_access_token_[appid]);
-  }
-  // 2. refresh token
-  refresh(appid, secret, cb)
+/*
+ * Store token's key as `appid|secret` format, becuase the secret can be updated in MP.
+ */
+function build_key(appid, secret){
+  return appid + "|" + secret;
 }
 
 /**
-* get one new token.
-*/
+ * return one token.
+ */
+module.exports = function token(appid, secret, cb) {
+  if(!appid || !secret){
+    var err = new Error();
+    err.name = 'WechatAccessTokenError';
+    return cb(err);
+  }
+  // 1. Return token if it is valid.
+  var key = build_key(appid, secret);
+  if (isValid(key)) {
+    return cb(null, _wx_access_token_[key]);
+  }
+  // 2. refresh token
+  return refresh(appid, secret, cb);
+};
+
+/**
+ * get one new token.
+ */
 function refresh(appid, secret, cb) {
-  return request('https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' + appid + '&secret=' + secret, function (error, response, body) {
-    if (error) return error;
+  var url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' + appid + '&secret=' + secret;
+  return request(url, function (error, response, body) {
+    if (error){
+      return cb(error);
+    }
     body = JSON.parse(body);
     if (body && body.errcode) {
       var err = new Error(body.errmsg);
@@ -28,17 +44,18 @@ function refresh(appid, secret, cb) {
       err.code = body.errcode;
       return cb(err);
     }
-    _wx_access_token_[appid] = {
+    var key = build_key(appid, secret);
+    _wx_access_token_[key] = {
       access_token: body.access_token,
       expires_in: new Date().getTime() + (body.expires_in - 10) * 1000
-    }
-    return cb(null, _wx_access_token_[appid]);
+    };
+    return cb(null, _wx_access_token_[key]);
   });
 }
 
 /**
-* check token is valid.
-*/
-function isValid(appid) {
-  return _wx_access_token_[appid] && new Date().getTime() < _wx_access_token_[appid].expires_in;
+ * check key is valid.
+ */
+function isValid(key) {
+  return _wx_access_token_[key] && new Date().getTime() < _wx_access_token_[key].expires_in;
 }
