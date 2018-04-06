@@ -29,8 +29,8 @@ module.exports = function token(params, cb) {
   const store = params.store || new Store()
 
   store.load(key).then(function(token) {
-    if (isValid(key)) {
-      return cb(null, _wx_access_token_[key])
+    if (isValid(token)) {
+      return cb(null, token)
     }
     // 2. refresh token
     return refresh(appid, secret, store, key, cb)
@@ -52,7 +52,10 @@ class Store {
   }
 
   save(key, value) {
-    _wx_access_token_[key] = value
+    return new Promise(function(resolve, reject) {
+      _wx_access_token_[key] = value
+      return resolve(value)
+    })
   }
 
   remove(key) {
@@ -86,8 +89,8 @@ function refresh(appid, secret, store, key, cb) {
       expires_in: new Date().getTime() + (body.expires_in - 10) * 1000,
     }
 
-    store.save(key, token)
-
-    return cb(null, token)
+    store.save(key, token).then(function(t) {
+      cb(null, token)
+    })
   })
 }
