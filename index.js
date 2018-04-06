@@ -46,7 +46,7 @@ function isValid(token) {
 
 class Store {
   load(key) {
-    return Promise(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
       return resolve(_wx_access_token_[key])
     })
   }

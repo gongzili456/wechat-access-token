@@ -1,6 +1,6 @@
 {
   "name": "wechat-access-token",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "pop one wechat access_token sometimes refresh",
   "main": "index.js",
   "scripts": {},
