@@ -29,7 +29,7 @@ module.exports = function token(params, cb) {
   const store = params.store || new Store()
 
   store.load(key).then(function(token) {
-    token = JSON.parse(token)
+    token = token && JSON.parse(token)
     if (isValid(token)) {
       return cb(null, token)
     }
